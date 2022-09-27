@@ -1,60 +1,52 @@
-function scheduleHtmlParser(html) {
+/**
+ * 
+ * @param {string} text 
+ * @returns {Array<JSON>}
+ */
+function scheduleHtmlParser(text) {
     let result = []
-    $(html)
-    var classIndex = 0
-    $('tbody tr').each(function (i, elem) {
-        classIndex++
-        // console.log("classIndex: " + classIndex)
-        var day = 0
-        elem.children.forEach(function (item2, i2) {
-            if (i2 == 0 || i2 == 1) return
-            if (item2.type == "text") return //排除奇怪的 text 项
-            day++
-            if (item2.children.length == 2) {
-                // console.log("day: " + day)
-                let aClass = { sections: [], weeks: [] }
-                // 课表格式说明：教师姓名 课程名称(序号) (第n周-第m周,教室)
-                let a = item2.children[0].data // 形势与政策（1）(A290001) 总学时 8 (理论学时:8 ) 
-                var b = item2.children[1].children[0].data // 3-6 ,张晰 鄠邑校区B104
-                // console.log(a)
-                // console.log(b)
-                // console.log("解析:")
-
-                let length = item2.attribs.rowspan // 课长
-                // console.log(length)
-
-                let className = a.substring(0, a.indexOf("(")) // 课名
-                // console.log(className)
-
-                let bi1 = b.indexOf(" ,")
-                let weekIndex = b.substring(0, bi1) // 持续周
-                // console.log(weekIndex)
-
-                b = b.substring(bi1 + 2)
-                let bi2 = b.indexOf(" ")
-                let teacher = b.substring(0, bi2) // 老师
-                // console.log(teacher)
-
-                b = b.substring(bi2 + 1) // 教室
-                // console.log(b)
-
-                aClass.name = className
-                aClass.position = b
-                aClass.teacher = teacher
-                for (var i = 0; i < length;i++) {
-                    aClass.sections.push(classIndex + i)
-                }
-                let begin = parseInt(weekIndex.substring(0, weekIndex.indexOf("-")))
-                let end = weekIndex.substring(weekIndex.indexOf("-") + 1)
-                for (var i = begin; i <= end; i++) {
-                    aClass.weeks.push(i)
-                }
-                aClass.day = day
-                // console.log(aClass)
-                result.push(aClass)
-            }
+    let classes = text.split('var teachers =')
+    classes.shift()
+    classes.forEach(function (item) {
+        let lines = item.split('\n')
+        let teacher = lines[0].substring(lines[0].indexOf(':"') + 2, lines[0].indexOf('",'))
+        console.log(teacher)
+        let activity = lines.find(function (a) {
+            return a.includes('new TaskActivity')
         })
-    });
-    // console.log(result)
+        var name = activity.substring(activity.indexOf(')","') + 4, activity.lastIndexOf(')","'))
+        name = name.substring(0, name.indexOf('('))
+        console.log(name)
+        let position = activity.substring(activity.lastIndexOf(')+"') + 4, activity.lastIndexOf('","'))
+        console.log(position)
+        let weeksString = activity.substring(activity.lastIndexOf('","') + 3, activity.lastIndexOf('",'))
+        console.log(weeksString)
+        let weeks = []
+        let e = weeksString.lastIndexOf('1')
+        for (var i = weeksString.indexOf('1'); i <= e; i++) {
+            weeks.push(i)
+        }
+        console.log(weeks)
+        let times = lines.filter(line => line.includes('index '))
+        var day = 0
+        let sections = []
+        times.forEach(function (aTime) {
+            day = parseInt(aTime.charAt(aTime.indexOf('=') + 1)) + 1
+            sections.push(parseInt(aTime.charAt(aTime.lastIndexOf(';') - 1)) + 1)
+        })
+        console.log(day)
+        console.log(sections)
+
+        let aClass = {}
+        aClass.name = name
+        aClass.position = position
+        aClass.teacher = teacher
+        aClass.weeks = weeks
+        aClass.day = day
+        aClass.sections = sections
+
+        console.log(aClass)
+        result.push(aClass)
+    })
     return result
 }
