@@ -3,3 +3,5 @@
 老校区用的什么不知道 可能也能用
 
 代码很烂 但他工作
+
+使用说明 https://duzhaokun123.github.io/2022/09/27/XSYU_AI_schedule.html
