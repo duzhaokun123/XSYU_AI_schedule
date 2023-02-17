@@ -14,6 +14,7 @@ function scheduleHtmlParser(text) {
         let activity = lines.find(function (a) {
             return a.includes('new TaskActivity')
         })
+        console.log(activity)
         var name = activity.substring(activity.indexOf(')","') + 4, activity.lastIndexOf(')","'))
         name = name.substring(0, name.indexOf('('))
         console.log(name)
