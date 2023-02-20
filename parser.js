@@ -25,7 +25,8 @@ function scheduleHtmlParser(text) {
         let weeks = []
         let e = weeksString.lastIndexOf('1')
         for (var i = weeksString.indexOf('1'); i <= e; i++) {
-            weeks.push(i)
+            if (weeksString.charAt(i) == '1')
+                weeks.push(i)
         }
         console.log(weeks)
         let times = lines.filter(line => line.includes('index '))
