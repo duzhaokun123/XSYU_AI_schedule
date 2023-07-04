@@ -2,5 +2,79 @@ async function scheduleTimer({
     providerRes,
     parserRes
 } = {}) {
-    return {} // 不清楚 先不写
+    await loadTool('AIScheduleTools')
+
+    const userInput = await AISchedulePrompt({
+        titleText: '开学时间',
+        tipText: 'YYYY MM DD',
+        defaultText: '',
+        validator: value => {
+            console.log(value)
+            let date = new Date(value)
+            if (date == 'Invalid Date') {
+                return '格式错误'
+            }
+            return false
+        }
+    })
+
+    return { //一些固定值 但愿不会变
+        startSemester: new Date(userInput).getTime(),
+        totalWeek: 20,
+        forenoon: 4,
+        afternoon: 4,
+        night: 2,
+        sections: [
+            {
+                section: 1,
+                startTime: '08:30',
+                endTime: '09:15',
+            },
+            {
+                section: 2,
+                startTime: '09:25',
+                endTime: '10:10',
+            },
+            {
+                section: 3,
+                startTime: '10:25',
+                endTime: '11:10',
+            },
+            {
+                section: 4,
+                startTime: '11:20',
+                endTime: '12:05',
+            },
+            {
+                section: 5,
+                startTime: '14:00',
+                endTime: '14:45',
+            },
+            {
+                section: 6,
+                startTime: '14:55',
+                endTime: '15:40',
+            },
+            {
+                section: 7,
+                startTime: '16:00',
+                endTime: '16:45',
+            },
+            {
+                section: 8,
+                startTime: '16:55',
+                endTime: '17:40',
+            },
+            {
+                section: 9,
+                startTime: '19:00',
+                endTime: '19:45',
+            },
+            {
+                section: 10,
+                startTime: '19:55',
+                endTime: '20:40',
+            },
+        ],
+    }
 }

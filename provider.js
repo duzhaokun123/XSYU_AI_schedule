@@ -3,40 +3,61 @@ async function scheduleHtmlProvider() {
     // 此步为必须，用于加载这个工具，后续会增加更多方法
     await loadTool('AIScheduleTools')
 
-    await AIScheduleAlert({
-        titleText: '警告',
-        contentText: '累了 自己抓包搞数据吧',
-        confirmText: '行吧',
-    })
+    let courseTableForStd = (await (await fetch("http://jwxt.xsyu.edu.cn/eams/courseTableForStd.action")).text()).toString()
+    courseTableForStd = courseTableForStd.substring(courseTableForStd.indexOf('if(jQuery("#courseTableType").val()=="std"){'), courseTableForStd.indexOf('bg.form.submit(form,"courseTableForStd!courseTable.action","contentDiv");'))
+    let idsBegin = 'bg.form.addInput(form,"ids","'
+    let idsEnd = '");'
+    let studentIds = courseTableForStd.substring(courseTableForStd.indexOf(idsBegin) + idsBegin.length, courseTableForStd.indexOf(idsEnd))
+    let classIds = courseTableForStd.substring(courseTableForStd.indexOf(idsBegin, courseTableForStd.indexOf(idsEnd)) + idsBegin.length, courseTableForStd.lastIndexOf(idsEnd))
+    console.log(studentIds)
+    console.log(classIds)
 
-
-    let guideLink = "https://duzhaokun123.github.io/2023/02/18/new_XSYU_AI_schedule.html"
-    const userSelect = await AIScheduleSelect({
-        titleText: '准备',
-        contentText: '你可以在 ' + guideLink + '学习如何使用 pc 浏览器抓取抓包获取需要的数据\n也可以直接开始',
+    let userSelect = await AIScheduleSelect({
+        titleText: '课表类型',
+        contentText: '学生 or 班级',
         selectList: [
-            '先学习',
-            '输数据',
+            '学生课表',
+            '班级课表',
         ],
     })
+    let ids = userSelect == '学生课表' ? studentIds : classIds
+    let setting_kind = userSelect == '学生课表' ? 'std' : 'class'
+    console.log(ids)
+    console.log(setting_kind)
 
-    console.log(userSelect)
-    if(userSelect == '先学习') {
-        window.open(guideLink)
+    let calenderData = (await (await fetch("http://jwxt.xsyu.edu.cn/eams/dataQuery.action", {
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        "body": "dataType=semesterCalendar&empty=false",
+        "method": "POST",
+    })).text()).toString()
+    calenderData = JSON.parse("{" + calenderData.substring(calenderData.indexOf('semesters'), calenderData.lastIndexOf('yearIndex') - 1).replace(/semesters|schoolYear|id|name|y[0-9]/g, function (x) { return '"' + x + '"' }) + "}").semesters
+    console.log(calenderData)
+
+    let calenders = []
+    for (yn in calenderData) {
+        calenderData[yn].forEach(function (aCalender) {
+            calenders.push(aCalender.schoolYear + ' 学期' + aCalender.name + " (" + aCalender.id)
+        })
     }
-
-    const source = await AISchedulePrompt({
-        titleText: '输数据',
-        tipText: '提供数据的地址\n可以是本地服务器',
-        defaultText: '',
-        validator: _value => {
-            return false
-        }
+    calenders = calenders.reverse()
+    userSelect = await AIScheduleSelect({
+        titleText: '学年学期',
+        contentText: '括号后的数对用户不重要',
+        selectList: calenders,
     })
+    let semester_id = userSelect.substring(userSelect.lastIndexOf('(') + 1)
+    console.log(semester_id)
 
-    let html = (await ((await fetch(source)).text())).toString()
-
-    let begin = 'function CourseTable in TaskActivity.js'
-    let end = 'fillTable('
-    return html.substring(html.indexOf(begin) + begin.length + 1, html.lastIndexOf(end))
+    let html = (await (await fetch("http://jwxt.xsyu.edu.cn/eams/courseTableForStd!courseTable.action", {
+        "headers": {
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        "body": "ignoreHead=1&setting.kind=" + setting_kind + "&semester.id=" + semester_id + "&ids=" + ids,
+        "method": "POST",
+    })).text()).toString()
+    let tasksBegin = 'function CourseTable in TaskActivity.js'
+    let tasksEnd = 'fillTable('
+    return html.substring(html.indexOf(tasksBegin) + tasksBegin.length + 1, html.lastIndexOf(tasksEnd))
 }
