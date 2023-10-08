@@ -27,23 +27,23 @@ async function scheduleTimer({
         sections: [
             {
                 section: 1,
-                startTime: '08:30',
-                endTime: '09:15',
+                startTime: '08:20',
+                endTime: '09:05',
             },
             {
                 section: 2,
-                startTime: '09:25',
-                endTime: '10:10',
+                startTime: '09:15',
+                endTime: '10:00',
             },
             {
                 section: 3,
-                startTime: '10:25',
-                endTime: '11:10',
+                startTime: '10:20',
+                endTime: '11:05',
             },
             {
                 section: 4,
-                startTime: '11:20',
-                endTime: '12:05',
+                startTime: '11:15',
+                endTime: '12:00',
             },
             {
                 section: 5,

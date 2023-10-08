@@ -2,7 +2,7 @@
 
 代码很烂 但他工作
 
-使用说明 https://duzhaokun123.github.io/2022/09/27/XSYU_AI_schedule.html
+使用说明 https://duzhaokun123.github.io/2023/07/04/new_new_XSYU_AI_schedule.html
 
 ## 感谢
 
